@@ -3,21 +3,21 @@
               [reagent.session :as session]
               [secretary.core :as secretary :include-macros true]
               [accountant.core :as accountant]
-              [snake.game]))
+              [snake.view]))
 
 
 ;; -------------------------
 ;; Views
 
 (defn home-page []
-  [:div [:h2 "Welcome to snake"]
-   [:div [:a {:href "/about"} "go to about page"]]
-   (snake.game/page)
+  [:div [:h2 "Snake"]
+   ;[:div [:a {:href "/about"} "about"]]
+   (snake.view/page)
    ])
 
 (defn about-page []
   [:div [:h2 "About snake"]
-   [:div [:a {:href "/"} "go to the home page"]]])
+   [:div [:a {:href "/"} "home"]]])
 
 (defn current-page []
   [:div [(session/get :current-page)]])

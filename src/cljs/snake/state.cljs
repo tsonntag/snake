@@ -25,9 +25,16 @@
 (defn set-speed! [game speed]
   (reset! (:speed game) speed))
 
+(defn speed [{:keys [speed] :as game}]
+  (deref speed))
+
+(defn state [{:keys [state] :as game}]
+  (deref state))
+
+
 (defn init! [state next-state-fn speed]
   (let [game  {:state (atom state)
                :speed (atom speed)
                :next-game next-state-fn
                :interval (atom  0)}]
-    (add-watch speed nil #(if (running? game) (start! game)))))
+    (add-watch (:speed game) nil #(if (running? game) (start! game)))))
