@@ -2,6 +2,7 @@
   (:require
    [reagent.core :refer [atom]]
    [snake.state :as state]
+   [snake.game]
     ))
 
 (defn link-to [url text]
@@ -22,11 +23,8 @@
 (def game (state/init! initial-state next-state
                        initial-speed))
 
-(defn next-state [state]
-  state)
-
 (defn ball []
-  (let [[bx by] [1 1]
+  (let [[bx by] [1 1]of p
         [x y] [2 4]]
     [:div#ball
      {:style

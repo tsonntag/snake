@@ -10,11 +10,11 @@
 (defn stop! [{:keys [interval]} game]
   (when (running? game)
     (js/clearInterval @interval)
-   (reset! interval nil)))
+    (reset! interval nil)))
 
-(defn start! [{:keys [speed interval] :as game}]
+(defn start! [{:keys [state interval] :as game}]
   (stop! game)
-  (let [intv (/ 1000.0 @speed)]
+  (let [intv (/ 1000.0 (:speed state))]
     (reset! interval (js/setInterval #(step! game) intv))))
 
 (defn toggle! [game]
@@ -22,19 +22,17 @@
     (stop! game)
     (start! game)))
 
-(defn set-speed! [game speed]
-  (reset! (:speed game) speed))
+(defn speed [{:keys [state] :as game}]
+  (:speed (deref state)))
 
-(defn speed [{:keys [speed] :as game}]
-  (deref speed))
+(defn set-speed! [{:keys [state] :as game} speed]
+  (swap! state #(assoc % :speed speed)))
 
 (defn state [{:keys [state] :as game}]
   (deref state))
 
-
 (defn init! [state next-state-fn speed]
   (let [game  {:state (atom state)
-               :speed (atom speed)
-               :next-game next-state-fn
+               :next-state next-state-fn
                :interval (atom  0)}]
-    (add-watch (:speed game) nil #(if (running? game) (start! game)))))
+    (add-watch (:speed state) nil #(if (running? game) (start! game)))))
