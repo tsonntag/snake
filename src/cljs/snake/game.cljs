@@ -34,6 +34,9 @@
   [pt len dir]
   (line pt (repeat len dir)))
 
+(defn hit-cube? [line cube]
+  (not-every? #(in-cube? cube %) line)
+  )
 (assert (= (move-pt [2 3] [2 1]) [4 4]))
 
 (assert (= (multiply 2 [2 3])            [4 6]))
@@ -57,6 +60,7 @@
 (assert (= (line [2 3] [[1 0] [2 3] [2 1]]) [[2 3] [3 3] [5 6] [7 7]]))
 (assert (= (straight-line [2 3] 3 [1 0]) [[2 3] [3 3] [4 3] [5 3]]))
 
+(assert (hit-cube? [[0 1] [0 2]] [[0 1] [0 2]]))
 ; state:
 ; snake: array of points
 ; trace: map of points to direction
@@ -66,21 +70,28 @@
 
 
 (defn next-state [{:keys [field snake trace dir speed] :as state}]
-  (let [next-trace (assoc trace (first snake) dir)
-        _ (println "NNNN" snake "TRACE" trace)
-        _ (println "NEXTTRACE"  next-trace)
+  (let [
+        _ (println "NEXT: SNAKE=" snake "TRACE=" trace)
          next-snake (->> snake
                          (map (fn [p]
-                                (println "MOVE" p (get next-trace v))
-                                (move-pt p (get next-trace p)))))
+                                (move-pt p (get trace p dir)))))
+        _ (println "NEXT: NEXT-SNAKE=" next-snake)
+        next-trace (zipmap next-snake (map #(get trace % dir) next-snake))
+        _ (println "NEXT: NEXT-TRACE=" next-trace)
+        valid (hit-cube? snake field)
         ]
-     (assoc state
-            :snake next-snake
-            :trace next-trace)))
+    (assoc state
+           :snake next-snake
+           :trace next-trace)))
 
-(assert (= (next-state
-            {:snake [0 0] [1 0] [2 0]
-             :trace {[0 0] [1 1]
-                     [1 0] [2 0]
-                     [2 0] [3 4]}}
-            )))
+(defn make-state [[field-x field-y] snake-start snake-len snake-dir speed]
+ (println "MMMMM")
+  (let [field [[0 field-x] [0 field-y]]
+        snake (straight-line snake-start snake-len snake-dir)
+        _ (println "MAKE" snake)]
+    {:field field
+     :snake snake
+     :trace (zipmap snake (repeat (inc snake-len) snake-dir))
+     :dir snake-dir
+     :speed speed
+     :valid (not (hit-cube? snake field))}))

@@ -4,15 +4,12 @@
 
 
 (defn speed [{:keys [state] :as game}]
-  (println "SPEED" game #_(:speed @state))
   (:speed (deref state)))
 
 (defn speed! [{:keys [state] :as game} speed]
   (swap! state #(assoc % :speed speed)))
 
 (defn step! [{:keys [state next-state-fn] :as game}]
-  (println "STEP" @state)
-  (println "===>" (next-state-fn @state))
   (swap! state next-state-fn))
 
 (defn running? [game]
