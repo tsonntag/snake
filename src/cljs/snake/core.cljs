@@ -5,15 +5,12 @@
               [accountant.core :as accountant]
               [snake.view]))
 
-
 ;; -------------------------
 ;; Views
-
 (defn home-page []
   [:div [:h2 "Snake"]
    ;[:div [:a {:href "/about"} "about"]]
-   (snake.view/page)
-   ])
+   (snake.view/page)])
 
 (defn about-page []
   [:div [:h2 "About snake"]

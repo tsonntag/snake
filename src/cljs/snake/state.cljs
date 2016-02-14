@@ -1,6 +1,7 @@
 (ns snake.state)
 
 
+
 (defn step! [{:keys [state next-state-fn] :as game}]
   (swap! state next-state-fn))
 
@@ -25,14 +26,15 @@
 (defn speed [{:keys [state] :as game}]
   (:speed (deref state)))
 
-(defn set-speed! [{:keys [state] :as game} speed]
+(defn speed! [{:keys [state] :as game} speed]
   (swap! state #(assoc % :speed speed)))
 
 (defn state [{:keys [state] :as game}]
   (deref state))
 
-(defn init! [state next-state-fn speed]
+(defn init! [state next-state-fn]
   (let [game  {:state (atom state)
-               :next-state next-state-fn
+               :next-state-fn next-state-fn
                :interval (atom  0)}]
-    (add-watch (:speed state) nil #(if (running? game) (start! game)))))
+    (add-watch (:state game) nil #(if (running? game) (start! game)))
+    game))

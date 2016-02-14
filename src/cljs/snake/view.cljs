@@ -1,8 +1,8 @@
 (ns snake.view
   (:require
-   [reagent.core :refer [atom]]
+  [reagent.core :refer [atom]]
    [snake.state :as state]
-   [snake.game]
+   [snake.game :as snake]
     ))
 
 (defn link-to [url text]
@@ -14,19 +14,19 @@
 (defn scale [i]
   (str (* unit i) "px"))
 
-(def field-size [50 50])
+(def initial-state {:field [[0 20] [0 20]]
+                    :snake (snake/straight-line [2 3] 5 [1 0])
+                    :dir [1 0]}
+  )
 
-(declare next-state)
+(def game (state/init! initial-state snake/next-state))
 
-(def initial-speed 10)
-(def initial-state {:x 0 :y 0} )
-(def game (state/init! initial-state next-state
-                       initial-speed))
+(defn state []
+    (snake.state/state game))
 
-(defn ball []
-  (let [[bx by] [1 1]of p
-        [x y] [2 4]]
-    [:div#ball
+(defn point [[x y]]
+  (let [[bx by] [1 1]]
+    [:div.point
      {:style
       {:background-color "#FF0000"
        :position "absolute"
@@ -36,12 +36,16 @@
        :height (scale by)}}]))
 
 (defn field []
-  (let [[x y] field-size]
+  (println "FIELD" (state))
+  (let [state (state)
+        [[x0 xn] [y0 yn]] (:field state)]
     [:div#field
      {:style {:background-color "#F0F0F0"
-              :width  (scale x)
-              :height (scale y)}}
-     (ball)]))
+              :width  (scale (- xn x0))
+              :height (scale (- yn y0))}}
+     (for [p (:snake state)]
+       ^{:key p} (point p))
+     ]))
 
 #_(defn speed-slider []
   [:div.speed-slider
@@ -54,8 +58,9 @@
 
 (defn page []
   [:div
-  ; [:button {:on-click #(state/toggle! game)} (if (state/running? game) "Stop" "Start")]
+   [:button {:on-click #(state/toggle! game)} (if (state/running? game) "Stop" "Start")]
    #_(speed-slider)
+   (println "PAGE")
    (field)
    [:br]
    [:br]]

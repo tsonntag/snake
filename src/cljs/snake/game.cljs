@@ -3,40 +3,44 @@
 
 (enable-console-print!)
 
-(def field {:x 50 :y 50})
-
-; snake: array of points
-
-; trace: {point => dicubeion}
-
-(defn add [ps]
-  (apply mapv + ps))
-
+(defn move-pt [point direction]
+  (mapv + point direction))
 
 (defn multiply [l point]
   (mapv #(* l %) point))
-
-(defn line [start len dicubeion]
-  (->> start
-       (iterate #(add % dicubeion))
-       (take len)))
 
 (defn in-range? [[r0 r1] x]
   (and (<= r0 x) (< x r1)))
 
 ; cube is [[x0 x1][y0 y1]..]
 (defn in-cube? [cube p]
-  (every #(in-range? % p) cube))
+  (->> (map vector cube p)
+       ;(map (partial apply in-range?))
+       ;println
+       (every? (partial apply in-range?))))
 
+; p0 (mv p0 d0)
+; p0 p1
+; p0 p1 (mv p1 d1)
+; p0 p1 p2
+(defn line
+  "create line from point and directions"
+  [p ds]
+  (->> ds
+       (reduce (fn [l d]
+                 (conj l (move-pt (last l) d)))
+               [p])))
+(defn straight-line
+  [pt len dir]
+  (line pt (repeat len dir)))
+
+(assert (= (move-pt [2 3] [2 1]) [4 4]))
 
 (assert (= (multiply 2 [2 3])            [4 6]))
 
-(assert (= (line [2 1] 3 [0 1])          [[2 1] [2 2] [2 3]] ))
-(assert (= (line [2 1] 3 [2 1])          [[2 1] [4 2] [6 3]]))
-
 (assert (in-range? [0 3] 0))
 (assert (in-range? [0 3] 1))
-(assert (in-range? [0 3] 12))
+(assert (in-range? [0 3] 2))
 (assert (not (in-range? [0 3] -1)))
 (assert (not (in-range? [0 3] 3)))
 
@@ -50,11 +54,29 @@
 (assert (not (in-cube?  [[0 3] [0 4]] [0 4])))
 (assert (not (in-cube?  [[0 3] [0 4]] [5 6])))
 
+(assert (= (line [2 3] [[1 0] [2 3] [2 1]]) [[2 3] [3 3] [5 6] [7 7]]))
+(assert (= (straight-line [2 3] 3 [1 0]) [[2 3] [3 3] [4 3] [5 3]]))
 
+; state:
 ; snake: array of points
 ; trace: map of points to direction
 ; direction
-(def state
-  {:field field
-   :snake 0
-   })
+; speed
+; valid?
+
+
+(defn next-state [{:keys [field snake trace dir speed] :as state}]
+   (let [next-trace (assoc trace (first snake) dir)
+         next-snake (->> snake
+                         (map (fn [p]
+                                (move-pt p (get next-trace p)))))]
+     (assoc state
+            :snake next-snake
+            :trace next-trace)))
+
+(assert (= (next-state
+            {:snake [0 0] [1 0] [2 0]
+             :trace {[0 0] [1 1]
+                     [1 0] [2 0]
+                     [2 0] [3 4]}}
+            )))
