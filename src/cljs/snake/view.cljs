@@ -1,6 +1,5 @@
 (ns snake.view
   (:require
-  [reagent.core :refer [atom]]
    [snake.state :as state]
    [snake.game :as snake]
     ))
@@ -14,10 +13,19 @@
 (defn scale [i]
   (str (* unit i) "px"))
 
-(def initial-state {:field [[0 20] [0 20]]
-                    :snake (snake/straight-line [2 3] 5 [1 0])
-                    :dir [1 0]}
-  )
+(def initial-state
+  (let [len 5
+        dir [1 0]
+        snake (snake/straight-line [2 3] len dir) ]
+    {:field [[0 20] [0 20]]
+     :snake snake
+     :trace (zipmap snake (repeat len dir))
+     :dir [1 0]
+     :speed 0.2}))
+
+(println "XXXXX")
+(snake/next-state initial-state)
+(println "YYYY")
 
 (def game (state/init! initial-state snake/next-state))
 
@@ -36,7 +44,7 @@
        :height (scale by)}}]))
 
 (defn field []
-  (println "FIELD" (state))
+  ;(println "FIELD" (state))
   (let [state (state)
         [[x0 xn] [y0 yn]] (:field state)]
     [:div#field

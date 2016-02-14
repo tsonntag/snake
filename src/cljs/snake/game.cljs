@@ -66,10 +66,14 @@
 
 
 (defn next-state [{:keys [field snake trace dir speed] :as state}]
-   (let [next-trace (assoc trace (first snake) dir)
+  (let [next-trace (assoc trace (first snake) dir)
+        _ (println "NNNN" snake "TRACE" trace)
+        _ (println "NEXTTRACE"  next-trace)
          next-snake (->> snake
                          (map (fn [p]
-                                (move-pt p (get next-trace p)))))]
+                                (println "MOVE" p (get next-trace v))
+                                (move-pt p (get next-trace p)))))
+        ]
      (assoc state
             :snake next-snake
             :trace next-trace)))
