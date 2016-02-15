@@ -1,8 +1,6 @@
 (ns snake.game)
 
 
-(enable-console-print!)
-
 (defn move-pt [point direction]
   (mapv + point direction))
 
@@ -85,7 +83,6 @@
            :trace next-trace)))
 
 (defn make-state [[field-x field-y] snake-start snake-len snake-dir speed]
- (println "MMMMM")
   (let [field [[0 field-x] [0 field-y]]
         snake (straight-line snake-start snake-len snake-dir)
         _ (println "MAKE" snake)]

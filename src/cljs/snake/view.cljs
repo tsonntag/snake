@@ -1,8 +1,7 @@
 (ns snake.view
-  (:require
-   [snake.state :as state]
-   [snake.game :as snake]
-    ))
+  (:require [snake.state :as state]
+            [snake.game :as snake]))
+
 
 (defn link-to [url text]
   [:a {:href url} text])
@@ -10,7 +9,8 @@
 ; unit in px
 
 (def unit 10)
-(defn scale [i]
+(defn scale [i
+             ]
   (str (* unit i) "px"))
 
 (def initial-state
@@ -33,7 +33,6 @@
        :height (scale by)}}]))
 
 (defn field []
-  ;(println "FIELD" (state))
   (let [state (state)
         [[x0 xn] [y0 yn]] (:field state)]
     [:div#field
@@ -57,7 +56,6 @@
   [:div
    [:button {:on-click #(state/toggle! game)} (if (state/running? game) "Stop" "Start")]
    #_(speed-slider)
-   (println "PAGE")
    (field)
    [:br]
    [:br]]
