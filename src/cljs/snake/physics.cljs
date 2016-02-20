@@ -33,11 +33,14 @@
   (line pt (repeat len dir)))
 
 (defn hit-cube? [line cube]
-  (not-every? #(in-cube? cube %) line)
-  )
+  (not-every? #(in-cube? cube %) line))
+
+(defn hit-self? [line]
+  (not= (count line) (count (set line))))
+
 (assert (= (move-pt [2 3] [2 1]) [4 4]))
 
-(assert (= (multiply 2 [2 3])            [4 6]))
+(assert (= (multiply 2 [2 3]) [4 6]))
 
 (assert (in-range? [0 3] 0))
 (assert (in-range? [0 3] 1))
@@ -58,4 +61,6 @@
 (assert (= (line [2 3] [[1 0] [2 3] [2 1]]) [[2 3] [3 3] [5 6] [7 7]]))
 (assert (= (straight-line [2 3] 3 [1 0]) [[2 3] [3 3] [4 3] [5 3]]))
 
-(assert (hit-cube? [[0 1] [0 2]] [[0 1] [0 2]]))
+(assert (not (hit-cube? [[1 1] [1 2]] [[0 3] [0 3]])))
+
+(assert (hit-cube? [[0 2] [0 3]] [[0 2] [0 2]]))
