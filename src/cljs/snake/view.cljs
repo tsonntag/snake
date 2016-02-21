@@ -1,7 +1,7 @@
 (ns snake.view
   (:require
-   [snake.game :as game]
-   [snake.world :as world]))
+   [snake.world :as world]
+   [snake.heartbeat :as heartbeat]))
 
 (defn link-to [url text]
   [:a {:href url} text])
@@ -31,27 +31,27 @@
               :height (scale (- yn y0))}}
      (for [p snake]
        ^{:key p} (point p snake-color))
-     (println "COINS" (keys coins))
      (for [p (keys coins)]
        ^{:key p} (point p coin-color))
      ]))
 
-#_(defn speed-slider [game]
+#_(defn speed-slider [{:keys [speed] :as world}]
   [:div.speed-slider
    "Speed"
    [:input {:type "range"
             :min 1
             :max 1000
-            :value (game/speed game)
-            :on-change #(game/speed! game (float (-> % .-target .-value)))}]])
+            :value @speed
+            :on-change #(reset! speed (float (-> % .-target .-value)))}]])
 
-(defn page [{:keys [world] :as game}]
-  [:div
-   [:button {:on-click #(game/initial! game)} "Reset"]
-   [:button {:on-click #(game/toggle! game)} (if (game/running? game) "Stop" "Start")]
-   [:br]
-   [:div "Points " (:rewards @world) ]
-   #_(speed-slider game)
-   (field @world)
-   [:br]
-   [:br]])
+(defn page [world-atom]
+  (let [world @world-atom]
+    [:div
+     [:button {:on-click #(reset! world-atom (:initial-word world))} "Reset"]
+     [:button {:on-click #(heartbeat/toggle! world)} (if (heartbeat/running? world) "Stop" "Start")]
+     [:br]
+     [:div "Points " (:rewards world) ]
+     #_(speed-slider game)
+     (field world)
+     [:br]
+     [:br]]))

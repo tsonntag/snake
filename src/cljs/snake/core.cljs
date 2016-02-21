@@ -4,7 +4,7 @@
               [secretary.core :as secretary :include-macros true]
               [accountant.core :as accountant]
               [snake.view :as view]
-              [snake.game :as game]
+              [snake.heartbeat :as heartbeat]
               [snake.world :as world]
               [goog.events])
     (:import [goog.events KeyHandler]
@@ -12,32 +12,48 @@
 
 (enable-console-print!)
 
-(defn next-world [world]
+
+(defn step-world [world]
   (->> world
        world/move
        world/handle-coins
        world/update-valid))
 
-(defonce game (game/new-game
-               {:initial-world (world/new-world {:field  [40 40]
-                                                 :snake-start [2 3]
-                                                 :snake-len 8
-                                                 :snake-direction [1 0]
-                                                 :coins {[3 1] 1
-                                                         [5 2] 2}})
-                :tick-fn (fn [world]
-                  (let [next-world (next-world world)]
-                    (if (:valid next-world)
-                      next-world
-                      (assoc world :valid false))))
-                :speed 3.0}))
+(defn heartbeat [world]
+ (let [next-world (step-world world)]
+    (if (:valid next-world)
+      next-world
+      (assoc world :valid false))))
+
+(defonce world (atom nil))
+
+(defn coins [[x y] max]
+  (let [n (rand-int max)
+        reward 1]
+    (-> (repeatedly n #[[(rand-int x) (rand-int y)] reward])
+        (into {}))))
+
+(println "COINS" (coins [3 4] 5))
+
+(def initial-world
+  (-> {:field  [40 40]
+        :snake-start [2 3]
+        :snake-len 8
+        :snake-direction [1 0]
+       :coins (coins [40 40] 10)}
+       world/init!
+       (heartbeat/add-heartbeat 3.0 #(swap! world heartbeat)))
+  )
+
+(reset! world (assoc initial-world
+                     :initial-word initial-world))
 
 ;; -------------------------
 ;; Views
 (defn home-page []
   [:div [:h2 "Snake"]
    ;[:div [:a {:href "/about"} "about"]]
-   (view/page game)])
+   (view/page world)])
 
 (defn about-page []
   [:div [:h2 "About snake"]
@@ -75,8 +91,8 @@
   (goog.events/listen (KeyHandler. js/document) EventType.KEY
                       (fn [event]
                         (.preventDefault event)
-                        (game/step! game
-                                    #(world/new-direction! % (event->direction event)))))
+                        (swap! world
+                               #(world/new-direction! % (event->direction event)))))
   (accountant/configure-navigation!)
   (accountant/dispatch-current!)
   (mount-root))

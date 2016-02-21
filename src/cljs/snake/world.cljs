@@ -18,7 +18,7 @@
 (defn combine [& snakes]
   (set (apply concat snakes)))
 
-(defn add-trace [{:keys [snake trace direction] :as world}]
+(defn update-trace [{:keys [snake trace direction] :as world}]
   (assoc world
          :trace (zipmap snake (map #(get trace % direction) snake))))
 
@@ -29,7 +29,7 @@
       (assoc
        :snake (next-snake world)
        :tick (inc (:tick world)))
-      add-trace))
+      update-trace))
 
 (defn handle-coins
   [{:keys [coins rewards snake] :as world}]
@@ -47,14 +47,13 @@
 (defn new-direction! [world direction]
   (assoc world :direction direction))
 
-(defn new-world [{:keys [field snake-start snake-len snake-direction coins]}]
+(defn init! [{:keys [field snake-start snake-len snake-direction coins]}]
   (let [snake (straight-line snake-start snake-len snake-direction)]
     (-> {:field [[0 (first field)] [0 (second field)]]
          :snake snake
-         :trace (zipmap snake (repeat (inc snake-len) snake-direction))
          :direction snake-direction
          :coins coins
          :tick 0
-         :rewards 0
-         }
+         :rewards 0}
+        update-trace
         update-valid)))
