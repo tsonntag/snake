@@ -12,19 +12,25 @@
 
 (enable-console-print!)
 
+(defn next-world [world]
+  (->> world
+       world/move
+       world/handle-coins
+       world/update-valid))
+
 (defonce game (game/new-game
-               {:initial-world (world/new-world {:field  [10 10]
+               {:initial-world (world/new-world {:field  [40 40]
                                                  :snake-start [2 3]
-                                                 :snake-len 4
+                                                 :snake-len 8
                                                  :snake-direction [1 0]
                                                  :coins {[3 1] 1
                                                          [5 2] 2}})
                 :tick-fn (fn [world]
-                  (let [moved-world (world/move world)]
-                    (if (:valid moved-world)
-                      moved-world
+                  (let [next-world (next-world world)]
+                    (if (:valid next-world)
+                      next-world
                       (assoc world :valid false))))
-                :speed 1.0}))
+                :speed 3.0}))
 
 ;; -------------------------
 ;; Views

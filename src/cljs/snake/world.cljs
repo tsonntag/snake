@@ -7,7 +7,7 @@
         (hit-cube? snake field)
         (hit-self? snake))))
 
-(defn valid! [world]
+(defn update-valid [world]
   (assoc world :valid (valid? world)))
 
 (defn next-snake [{:keys [snake trace direction] :as world}]
@@ -18,34 +18,31 @@
 (defn combine [& snakes]
   (set (apply concat snakes)))
 
-(defn next-trace [{:keys [trace direction] :as world} next-snake]
-  (zipmap next-snake (map #(get trace % direction) next-snake)))
+(defn add-trace [{:keys [snake trace direction] :as world}]
+  (assoc world
+         :trace (zipmap snake (map #(get trace % direction) snake))))
 
 (defn move
   "move snake"
-  [{:keys [tick coins rewards] :as world}]
-  (let [
-;        _ (println "NEXT: FIELD=" field " DIRECTION=" direction)
-;        _ (println "NEXT:   SNAKE=" snake "   TRACE=" trace "   VALID=" (valid? world))
-        next-snake (next-snake world)
-        next-snake-set (set next-snake)
-        hit-coin (->> (keys coins)
-                      (filter next-snake-set))
-        rewards
-        _ (println "HITCOIN" hit-coin)
- ;       _ (println "MOVE: tick=" tick "mod=" (mod tick 3))
- ;       _ (println "MOVE: snake=" snake "next=" next-snake "combine=" (combine snake next-snake))
-;        next-snake (if (= 2 (mod tick 3)) (combine snake next-snake) next-snake)
+  [world]
+  (-> world
+      (assoc
+       :snake (next-snake world)
+       :tick (inc (:tick world)))
+      add-trace))
 
-                                        ;       _ (println "NEXT: N-SNAKE=" next-snake " N-TRACE" next-trace  " VALID=" (valid? (assoc world :snake next-snake)))
+(defn handle-coins
+  [{:keys [coins rewards snake] :as world}]
+  (let [snake (set snake)
+        hit-coin (->> (keys coins)
+                      (filter snake)
+                      first)
+        _ (println "HITCOIN" hit-coin)
         ]
-    (-> world
-        (assoc
-         :snake next-snake
-         :trace (next-trace world next-snake)
-         :tick (inc (:tick world))
-         :rewards )
-        valid!)))
+    (assoc world
+           :coins (dissoc coins hit-coin)
+           :rewards (+ rewards (get coins hit-coin)))
+        ))
 
 (defn new-direction! [world direction]
   (assoc world :direction direction))
@@ -60,4 +57,4 @@
          :tick 0
          :rewards 0
          }
-        valid!)))
+        update-valid)))

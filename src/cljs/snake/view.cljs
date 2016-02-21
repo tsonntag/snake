@@ -45,12 +45,13 @@
             :value (game/speed game)
             :on-change #(game/speed! game (float (-> % .-target .-value)))}]])
 
-(defn page [game]
+(defn page [{:keys [world] :as game}]
   [:div
    [:button {:on-click #(game/initial! game)} "Reset"]
    [:button {:on-click #(game/toggle! game)} (if (game/running? game) "Stop" "Start")]
    [:br]
+   [:div "Points " (:rewards @world) ]
    #_(speed-slider game)
-   (field @(:world game))
+   (field @world)
    [:br]
    [:br]])
