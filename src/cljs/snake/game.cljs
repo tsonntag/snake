@@ -3,11 +3,10 @@
    [reagent.core :refer [atom]]))
 
 (defn step! [{:keys [world] :as game} fn]
-  (println "STEP: " @world)
   (swap! world fn))
 
 (defn speed! [game speed]
-  (reset! (:speed world) speed))
+  (reset! (:speed game) speed))
 
 (defn running? [game]
   (deref (:interval game)))
@@ -35,11 +34,9 @@
 (defn initial! [{:as game :keys [initial-world world]}]
   (reset! world initial-world))
 
-(defn new-game [initial-world tick-fn speed]
-  (let [game  {:initial-world initial-world
-               :world (atom initial-world)
-               :tick-fn tick-fn
-               :interval (atom nil)
-               :speed (atom speed)}]
-    ;#_(add-watch (:world game) nil #(if (running? game) (start! game)))
-    game))
+(defn new-game [{:keys [initial-world tick-fn coins speed] :as game}]
+  (assoc game
+         :world (atom initial-world)
+         :interval (atom nil)
+         :speed (atom speed)
+         :points 0))

@@ -13,15 +13,18 @@
 (enable-console-print!)
 
 (defonce game (game/new-game
-               (world/new-world [80 80] [2 3] 20 [1 0])
-               (fn [world]
-                 (println "TICK: VALID=" (world/valid? world))
-                 (let [moved-world (world/move world)]
-                   (if (:valid moved-world)
-                     moved-world
-                     (assoc world :valid false))))
-               10.0
-               ))
+               {:initial-world (world/new-world {:field  [10 10]
+                                                 :snake-start [2 3]
+                                                 :snake-len 4
+                                                 :snake-direction [1 0]
+                                                 :coins {[3 1] 1
+                                                         [5 2] 2}})
+                :tick-fn (fn [world]
+                  (let [moved-world (world/move world)]
+                    (if (:valid moved-world)
+                      moved-world
+                      (assoc world :valid false))))
+                :speed 1.0}))
 
 ;; -------------------------
 ;; Views

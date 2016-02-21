@@ -10,25 +10,30 @@
 (def unit 10)
 (defn scale [i] (str (* unit i) "px"))
 
-(defn point [world [x y]]
+(defn point [[x y] color]
   (let [[bx by] [1 1]]
     [:div.point
      {:style
-      {:background-color (if (:valid world) "#00FF00" "#FF0000")
+      {:background-color color
        :position "absolute"
        :margin-left (scale x)
        :margin-top  (scale y)
        :width  (scale bx)
        :height (scale by)}}]))
 
-(defn field [world]
-  (let [[[x0 xn] [y0 yn]] (:field world)]
+(defn field [{:keys [field valid snake coins] :as world}]
+  (let [[[x0 xn] [y0 yn]] field
+        snake-color (if valid "#00FF00" "#FF0000")
+        coin-color "#0000FF"]
     [:div#field
      {:style {:background-color "#F0F0F0"
               :width  (scale (- xn x0))
               :height (scale (- yn y0))}}
-     (for [p (:snake world)]
-       ^{:key p} (point world p))
+     (for [p snake]
+       ^{:key p} (point p snake-color))
+     (println "COINS" (keys coins))
+     (for [p (keys coins)]
+       ^{:key p} (point p coin-color))
      ]))
 
 #_(defn speed-slider [game]
